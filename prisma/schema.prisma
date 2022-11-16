@@ -19,7 +19,8 @@ model Products {
   quantity Int
   discountPrice Int?
   description String   @db.VarChar(1000)
-  category1 String?   @db.VarChar(40)
-  category2 String?  @db.VarChar(40)
-  category3 String?   @db.VarChar(40)
+  scoreValue: Int,
+  installmentPrice: Int?,
+  isBestseller Boolean?   
+  hasFreeShipping Boolean?  
 }
