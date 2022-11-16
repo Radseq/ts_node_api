@@ -1,28 +1,19 @@
-type Product = {
-    id: string;
-    name: string;
-    imageSrc: string;
-    price: number;
-    vat: number;
-    quantity: number;
-    discountPrice?: number;
-    description?: string;
+const { PrismaClient } = require('@prisma/client')
+
+const prisma = new PrismaClient()
+
+export const getAllProducts = async () => {
+    const allProducts = await prisma.Products.findMany();
+
+    console.log(allProducts);
+    return allProducts;
 }
 
-const products = [] as Product[];
-if(process.env.ENVIRONMENT !== 'production'){
-    products.push({
-        id: "guid",
-        name: "Test",
-        imageSrc: "https://uxwing.com/wp-content/themes/uxwing/download/hand-gestures/good-icon.png",
-        price: 200,
-        vat: 23,
-        quantity: 234
-    });
-}
-export const getAllProducts = () => Promise.resolve(products);
+export const getProductById = async (productId: number) => {
+    const product = await prisma.Products.findUnique({
+        where: { id: productId }
+    })
 
-export const getProductById = (id: Product['id'] ) => {
-    const productById = products.find(product => product.id === id)
-    return Promise.resolve(productById)
+    console.log(product);
+    return Promise.resolve(product)
 }
