@@ -19,8 +19,8 @@ model Products {
   quantity Int
   discountPrice Int?
   description String   @db.VarChar(1000)
-  scoreValue: Int,
-  installmentPrice: Int?,
+  scoreValue Int
+  installmentPrice Int?
   isBestseller Boolean?   
   hasFreeShipping Boolean?  
 }
