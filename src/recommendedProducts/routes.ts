@@ -3,7 +3,7 @@ import { getAllRecommendedProducts, getRecommendedProductById } from "./recommen
 
 function createRecommendedProductRouter() {
     return express.Router()
-        .get('', async (_, resp) => {
+        .get('', async (_, resp: Response) => {
             const products = await getAllRecommendedProducts();
             resp.status(200).json(products);
         })
