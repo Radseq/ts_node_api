@@ -8,7 +8,7 @@ function createProductRouter() {
             resp.status(200).json(products);
         })
         .get('/:productId', async (req, resp) =>{
-            const product = await getProductById(req.params.productId);
+            const product = await getProductById(Number(req.params.productId));
             if(!product){
                 return resp.status(404).send({
                     error: `Product ${req.params.productId} not found`,
