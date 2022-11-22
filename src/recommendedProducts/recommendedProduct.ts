@@ -1,3 +1,5 @@
+import { getCategoriesByNameRelatedToProducts } from "../categories/category"
+
 const { PrismaClient } = require('@prisma/client')
 
 const prisma = new PrismaClient()
@@ -31,18 +33,47 @@ const jsonToRecommendedProduct = (
     }
 }
 
-export const getAllRecommendedProducts = async () => {
-    const allProducts = await prisma.Products.findMany() as [];
+export const getAllRecommendedProducts = async (customerSearch: { value: string }[]) => {
+    const maxResultSize = 12;
+    const categories = await getCategoriesByNameRelatedToProducts(customerSearch.map(searchStringValue => searchStringValue.value));
 
-    return allProducts.map(json => {
+    const categoriesIds = categories.map((category: { id: number, name: string, parentId?: number }) => {
+        return category.id;
+    })
+
+    const products = await prisma.products.findMany({
+        select: {
+            id: true,
+            name: true,
+            description: true,
+            imageSrc: true,
+            price: true,
+            vat: true,
+            discountPrice: true,
+            hasFreeShipping: true,
+            isBestseller: true,
+            productsCategories:
+            {
+                take: 3,
+            },
+        },
+        where: {
+            productsCategories:
+            {
+                some:
+                {
+                    categoryId: { in: categoriesIds },
+                },
+            },
+        },
+        orderBy: {
+            scoreValue: 'desc',
+        },
+        distinct: ['id'],
+        take: maxResultSize,
+    }) as [];
+
+    return products.map(json => {
         return jsonToRecommendedProduct(json);
     });
-}
-
-export const getRecommendedProductById = async (productId: number) => {
-    const product = await prisma.Products.findUnique({
-        where: { id: productId }
-    });
-
-    return jsonToRecommendedProduct(product);
 }
