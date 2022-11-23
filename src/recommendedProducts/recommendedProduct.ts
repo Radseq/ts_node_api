@@ -1,45 +1,13 @@
-import { getCategoriesByNameRelatedToProducts } from "../categories/category"
+import { categoriesByNameRelatedToProducts } from "../categories/category"
+import { Prisma } from '@prisma/client'
 
 const { PrismaClient } = require('@prisma/client')
 
 const prisma = new PrismaClient()
 
-const jsonToRecommendedProduct = (
-    json: {
-        id: number,
-        name: string,
-        description: string,
-        imageSrc: string,
-        price: number,
-        vat: number,
-        promotionPrice: number,
-        discountPrice: number,
-        hasFreeShipping: boolean,
-        isBestseller: boolean
-    }
-) => {
-    return {
-        id: json.id,
-        name: json.name,
-        description: json.description,
-        imageSrc: json.imageSrc,
-        price: json.price,
-        vat: json.price,
-        promotionPrice: json.discountPrice,
-        category: {
-            freeShipping: json.hasFreeShipping ?? false,
-            bestseller: json.isBestseller ?? false
-        }
-    }
-}
-
+// Motivation: take 3 max scored products of each category.
 export const getAllRecommendedProducts = async (customerSearch: { value: string }[]) => {
-    const maxResultSize = 12;
-    const categories = await getCategoriesByNameRelatedToProducts(customerSearch.map(searchStringValue => searchStringValue.value));
-
-    const categoriesIds = categories.map((category: { id: number, name: string, parentId?: number }) => {
-        return category.id;
-    })
+    const categories = await categoriesByNameRelatedToProducts(customerSearch.map(searchStringValue => searchStringValue.value));
 
     const products = await prisma.products.findMany({
         select: {
@@ -62,7 +30,7 @@ export const getAllRecommendedProducts = async (customerSearch: { value: string 
             {
                 some:
                 {
-                    categoryId: { in: categoriesIds },
+                    categoryId: { in: categories.map(({ id }) => id) },
                 },
             },
         },
@@ -70,10 +38,8 @@ export const getAllRecommendedProducts = async (customerSearch: { value: string 
             scoreValue: 'desc',
         },
         distinct: ['id'],
-        take: maxResultSize,
+        take: Number(process.env.RECOMMENDED_PRODUCTS_MAX_SIZE),
     }) as [];
 
-    return products.map(json => {
-        return jsonToRecommendedProduct(json);
-    });
+    return products;
 }

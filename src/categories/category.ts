@@ -2,13 +2,7 @@ const { PrismaClient } = require('@prisma/client')
 
 const prisma = new PrismaClient()
 
-type PrismaCategoryNameConstains = {
-    name:
-    { contains: string }
-}
-
-const getCategoriesRelatedToProducts = async () => {
-    console.log('getCategoriesRelatedToProducts');
+const categoriesRelatedToProducts = async () => {
     const categories = await prisma.categories.findMany({
         include: {
             productsCategories: true,
@@ -17,16 +11,15 @@ const getCategoriesRelatedToProducts = async () => {
     return categories;
 }
 
-export const getCategoriesByNameRelatedToProducts = async (categoryNames: string[]) => {
-    console.log('getCategoriesByNameRelatedToProducts');
-    const prismaCategoryNameConstains = categoryNames.map(
-     categoryName => ({ name:  { contains: categoryName } })
+export const categoriesByNameRelatedToProducts = async (categoryNames: string[]) => {
+    const categoryNameConstains = categoryNames.map(
+        categoryName => ({ name: { contains: categoryName } })
     );
 
     // find all categories of customers search, and this categories are related to products
     const categories = await prisma.categories.findMany({
         where: {
-            OR: prismaCategoryNameConstains
+            OR: categoryNameConstains
         },
         include: {
             productsCategories: true,
@@ -35,7 +28,7 @@ export const getCategoriesByNameRelatedToProducts = async (categoryNames: string
 
     // not found categories with customerSearch values, get all that have products
     if (!categories?.length) {
-        return getCategoriesRelatedToProducts();
+        return categoriesRelatedToProducts();
     }
 
     return categories;
