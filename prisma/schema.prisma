@@ -20,7 +20,7 @@ model Products {
   discountPrice Int?
   description String   @db.VarChar(1000)
   scoreValue Int
-  productsCategories ProductsCategories[]
+  productInCategories ProductInCategory[]
   installmentPrice Int?
   isBestseller Boolean?   
   hasFreeShipping Boolean?  
@@ -29,13 +29,11 @@ model Products {
 model Categories {
   id    Int                 @id @default(autoincrement())
   name  String
-  productsCategories ProductsCategories[]
-  children Categories[] @relation("children")
-  parent   Categories?  @relation("children", fields: [parentId], references: [id])
-  parentId Int?      @map("parentId")
+  productInCategories ProductInCategory[]
+  parentId Int?     
 }
 
-model ProductsCategories {
+model ProductInCategory {
   product       Products     @relation(fields: [productId], references: [id])
   productId     Int
   category   Categories @relation(fields: [categoryId], references: [id])
