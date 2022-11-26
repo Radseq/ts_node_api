@@ -2,7 +2,7 @@ const { PrismaClient } = require('@prisma/client')
 
 const prisma = new PrismaClient()
 
-const receiveAllCategories = async () => {
+const retrieveAllCategories = async () => {
     const categories = await prisma.categories.findMany({
         include: {
             productInCategories: true,
@@ -11,7 +11,7 @@ const receiveAllCategories = async () => {
     return categories;
 }
 
-export const receiveAllCategoriesByName = async (categoryNames: string[]) => {
+export const retrieveAllCategoriesByName = async (categoryNames: string[]) => {
     const categoryNameConstains = categoryNames.map(
         categoryName => ({ name: { contains: categoryName } })
     );
@@ -26,7 +26,7 @@ export const receiveAllCategoriesByName = async (categoryNames: string[]) => {
     }) as [];
 
     if (!categories?.length) {
-        return receiveAllCategories();
+        return retrieveAllCategories();
     }
 
     return categories;
