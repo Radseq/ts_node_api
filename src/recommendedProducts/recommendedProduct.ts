@@ -1,9 +1,7 @@
 import { CONFIG } from "../config";
 import { retrieveAllCategories, retrieveAllCategoriesByName } from "../categories/category"
+import { prisma } from "../../prisma/prisma";
 
-const { PrismaClient } = require('@prisma/client')
-
-const prisma = new PrismaClient()
 
 // Motivation: take 3 max scored products of each category.
 export const getAllRecommendedProducts = async (customerSearch: { value: string }[]) => {
@@ -30,11 +28,9 @@ export const getAllRecommendedProducts = async (customerSearch: { value: string 
         });
     });
 
-    let recommendedProducts = await Promise.all(sqlQuerys);
+    const queryResultPromises = await Promise.all(sqlQuerys);
 
-    // since sqlQuerys return array in array, we flat this into one array
-    recommendedProducts = recommendedProducts.flat().slice(0, CONFIG.MAX_RECOMMENDED_PRODUCTS);
-
+    let recommendedProducts = queryResultPromises.flat().slice(0, CONFIG.MAX_RECOMMENDED_PRODUCTS);
     if (recommendedProducts.length < CONFIG.MAX_RECOMMENDED_PRODUCTS) {
         // we don't have proper amount of products, we just take most scored products overall
         // todo take best scored products sold in last ... days
