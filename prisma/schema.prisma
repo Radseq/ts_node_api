@@ -10,7 +10,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Products {
+model Product {
   id        Int      @id @default(autoincrement())
   name     String   @db.VarChar(120)
   imageSrc     String   @db.VarChar(200)
@@ -26,7 +26,7 @@ model Products {
   hasFreeShipping Boolean?  
 }
 
-model Categories {
+model Category {
   id    Int                 @id @default(autoincrement())
   name  String
   productInCategories ProductInCategory[]
@@ -34,9 +34,9 @@ model Categories {
 }
 
 model ProductInCategory {
-  product       Products     @relation(fields: [productId], references: [id])
+  product       Product     @relation(fields: [productId], references: [id])
   productId     Int
-  category   Categories @relation(fields: [categoryId], references: [id])
+  category   Category @relation(fields: [categoryId], references: [id])
   categoryId Int
 
   @@id([productId, categoryId])

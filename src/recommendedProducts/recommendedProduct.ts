@@ -1,5 +1,5 @@
 import { CONFIG } from "../config";
-import { retrieveAllCategoriesByName } from "../categories/category"
+import { retrieveAllCategories, retrieveAllCategoriesByName } from "../categories/category"
 
 const { PrismaClient } = require('@prisma/client')
 
@@ -7,10 +7,13 @@ const prisma = new PrismaClient()
 
 // Motivation: take 3 max scored products of each category.
 export const getAllRecommendedProducts = async (customerSearch: { value: string }[]) => {
-    const categories = await retrieveAllCategoriesByName(customerSearch.map(searchStringValue => searchStringValue.value));
+    let categories = await retrieveAllCategoriesByName(customerSearch.map(searchStringValue => searchStringValue.value));
+    if (!categories?.length) {
+        categories = await retrieveAllCategories();
+    }
 
-    const sqlQuerys = categories.map(({ id }) => {
-        return prisma.products.findMany({
+    const sqlQuerys = categories.map(({ id }: { id: number; }) => {
+        return prisma.product.findMany({
             where: {
                 productInCategories:
                 {
@@ -27,28 +30,28 @@ export const getAllRecommendedProducts = async (customerSearch: { value: string 
         });
     });
 
-    let querysResult = await Promise.all(sqlQuerys);
+    let recommendedProducts = await Promise.all(sqlQuerys);
 
     // since sqlQuerys return array in array, we flat this into one array
-    querysResult = querysResult.slice(0, CONFIG.MAX_RECOMMENDED_PRODUCTS).flat();
+    recommendedProducts = recommendedProducts.flat().slice(0, CONFIG.MAX_RECOMMENDED_PRODUCTS);
 
-    if (querysResult.length < CONFIG.MAX_RECOMMENDED_PRODUCTS) {
+    if (recommendedProducts.length < CONFIG.MAX_RECOMMENDED_PRODUCTS) {
         // we don't have proper amount of products, we just take most scored products overall
         // todo take best scored products sold in last ... days
-        const products = await prisma.products.findMany({
+        const products = await prisma.product.findMany({
             where: {
                 NOT:
                 {
-                    id: { in: querysResult.map(({ id }) => id) },
+                    id: { in: recommendedProducts.map(({ id }) => id) },
                 },
             },
             orderBy: {
                 scoreValue: 'desc',
             },
-            take: Number(querysResult.length - CONFIG.MAX_RECOMMENDED_PRODUCTS),
-        }) as [];
-        querysResult = querysResult.concat(products);
+            take: recommendedProducts.length - CONFIG.MAX_RECOMMENDED_PRODUCTS,
+        });
+        recommendedProducts = recommendedProducts.concat(products);
     }
-    console.log(querysResult);
-    return querysResult;
+
+    return recommendedProducts;
 }

@@ -3,7 +3,7 @@ const { PrismaClient } = require('@prisma/client')
 const prisma = new PrismaClient()
 
 const main = async () => {
-    const productCreated = await prisma.Products.create({
+    const productCreated = await prisma.Product.create({
         data: {
             name: 'ASUS TUF Gaming F15 i5-11400H/16GB/512/Win11 RTX3050Ti 144Hz',
             imageSrc: 'https://cdn.x-kom.pl/i/setup/images/prod/big/product-new-big,,2022/5/pr_2022_5_24_11_7_54_334_00.jpg',
