@@ -10,7 +10,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Products {
+model Product {
   id        Int      @id @default(autoincrement())
   name     String   @db.VarChar(120)
   imageSrc     String   @db.VarChar(200)
@@ -20,7 +20,24 @@ model Products {
   discountPrice Int?
   description String   @db.VarChar(1000)
   scoreValue Int
+  productInCategories ProductInCategory[]
   installmentPrice Int?
   isBestseller Boolean?   
   hasFreeShipping Boolean?  
+}
+
+model Category {
+  id    Int                 @id @default(autoincrement())
+  name  String
+  productInCategories ProductInCategory[]
+  parentId Int?     
+}
+
+model ProductInCategory {
+  product       Product     @relation(fields: [productId], references: [id])
+  productId     Int
+  category   Category @relation(fields: [categoryId], references: [id])
+  categoryId Int
+
+  @@id([productId, categoryId])
 }
