@@ -6,6 +6,17 @@ export const retrieveAllCategories = async () => {
             productInCategories: true,
         },
     });
+
+    return categories;
+}
+
+export const getNavigationCategories = async (root: boolean = false) => {
+    const categories = await prisma.category.findMany({
+        where: {
+            IsNavigation: true,
+        },
+    });
+
     return categories;
 }
 
