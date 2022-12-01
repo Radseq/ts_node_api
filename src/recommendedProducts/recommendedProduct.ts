@@ -3,6 +3,19 @@ import { retrieveAllCategories, retrieveAllCategoriesByName } from "../categorie
 import { prisma } from "../../prisma/prisma";
 
 
+export const retrieveOneRecommendedProductsOfCategories = async (categoriesIds: number[]) => {
+    const result = await prisma.product.findMany({
+        where: {
+            id: { in: categoriesIds },
+        },
+        orderBy: {
+            scoreValue: 'desc',
+        },
+        take: 1,
+    })
+    return result;
+}
+
 // Motivation: take 3 max scored products of each category.
 export const getAllRecommendedProducts = async (customerSearch: { value: string }[]) => {
     let categories = await retrieveAllCategoriesByName(customerSearch.map(searchStringValue => searchStringValue.value));
