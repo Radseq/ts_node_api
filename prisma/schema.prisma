@@ -23,7 +23,10 @@ model Product {
   productInCategories ProductInCategory[]
   installmentPrice Int?
   isBestseller Boolean?   
-  hasFreeShipping Boolean?  
+  hasFreeShipping Boolean?
+  scores ProductScore[]
+  productDescription ProductDescription[]
+  productSpecification ProductSpecification[]
 }
 
 model Category {
@@ -40,4 +43,47 @@ model ProductInCategory {
   categoryId Int
 
   @@id([productId, categoryId])
+}
+
+model ProductScore {
+ id       Int  @id @default(autoincrement())
+ product       Product     @relation(fields: [productId], references: [id])
+ productId     Int
+ score Int
+ addDate String
+ ipAddress String
+}
+
+model ProductSpecification {
+  product       Product     @relation(fields: [productId], references: [id])
+  productId     Int
+  specification   Specification @relation(fields: [specificationId], references: [id])
+  specificationId Int
+
+  @@id([productId, specificationId])
+}
+
+model Specification {
+ id       Int  @id @default(autoincrement())
+ name String @db.VarChar(50)
+ value String @db.VarChar(100)
+ isMain Boolean
+ productSpecification ProductSpecification[]
+}
+
+model ProductDescription {
+  product       Product     @relation(fields: [productId], references: [id])
+  productId     Int
+  description   Description @relation(fields: [descriptionId], references: [id])
+  descriptionId Int
+
+  @@id([productId, descriptionId])
+}
+
+model Description {
+ id       Int  @id @default(autoincrement())
+ name String @db.VarChar(50)
+ imageSrc     String   @db.VarChar(200)
+ description String   @db.VarChar(1000)
+ productDescription ProductDescription[]
 }
