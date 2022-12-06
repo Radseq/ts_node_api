@@ -1,36 +1,28 @@
 import { retrieveOneRecommendedProductsOfCategories } from "../recommendedProducts/recommendedProduct";
 import { getNavigationCategories } from "../categories/category"
+import { Product } from "@prisma/client";
 
 type Navigation = {
     id: number,
     name: string,
-    childIds: number[],
-    isRoot?: boolean,
-    recommendedProduct?: any,
+    navigation: Navigation[],
+    product?: Product
 }
 
-const returnRecursiveIdsArray = (navigations: Navigation[], id: number): number[] => {
-    const nav = navigations.find(a => a.id == id);
-    let resultIdArray: number[] = [id];
-    if (nav?.childIds) {
-        return resultIdArray.concat(nav.childIds.map(id => returnRecursiveIdsArray(navigations, id)).flat());
-    }
-    return resultIdArray;
-}
-
-const idsPerNavigationTree = (navigations: Navigation[]) => {
-    let rootTreeMatrix: number[][] = [];
-    navigations.forEach(element => {
-        if (element.isRoot) {
-            let resultIdArray: number[] = [element.id];
-            if (element.childIds) {
-                resultIdArray = resultIdArray.concat(element.childIds.map(id => returnRecursiveIdsArray(navigations, id)).flat());
-            }
-            rootTreeMatrix.push(resultIdArray);
+const findParentNavigation = (navigations: Navigation[], parentId: number): Navigation | undefined => {
+    for (let index = 0; index < navigations.length; index++) {
+        const nav = navigations[index];
+        if (nav.id === parentId) {
+            return nav;
         }
-    });
+        else if (nav.navigation) {
+            const parent = findParentNavigation(nav.navigation, parentId);
+            if (parent)
+                return parent;
+        }
+    }
 
-    return rootTreeMatrix;
+    return undefined;
 }
 
 export const collectNavigations = async () => {
@@ -40,15 +32,14 @@ export const collectNavigations = async () => {
 
     categories.forEach(({ id, name, parentId }) => {
         if (parentId) {
-            const foundNavigation = navigations.find(element => element.id == parentId);
+            const foundNavigation = findParentNavigation(navigations, parentId);
             if (foundNavigation) {
-                foundNavigation.childIds.push(id);
+                foundNavigation.navigation.push({ id, name, navigation: [] });
             }
+        } else {
+            navigations.push({ id, name, navigation: [] })
         }
-        navigations.push({ id, name, childIds: [], isRoot: parentId ? undefined : true })
     });
-
-    // todo get recommended product idsPerNavigationTree
 
     return navigations;
 }
