@@ -10,12 +10,8 @@ export const retrieveAllCategories = async () => {
     return categories;
 }
 
-export const getNavigationCategories = async (root: boolean = false) => {
-    const categories = await prisma.category.findMany({
-        where: {
-            IsNavigation: true,
-        },
-    });
+export const getNavigationCategories = async () => {
+    const categories = await prisma.category.findMany();
 
     return categories;
 }

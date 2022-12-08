@@ -29,7 +29,6 @@ model Product {
 model Category {
   id    Int                 @id @default(autoincrement())
   name  String
-  IsNavigation Boolean @default(false)
   productInCategories ProductInCategory[]
   parentId Int?     
 }

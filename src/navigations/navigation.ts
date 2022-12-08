@@ -12,11 +12,10 @@ type Navigation = {
 export const getNavigationTree = async () => {
     const allCategories = await getNavigationCategories()
 
-    const rootCategories = allCategories.filter(el => !el.parentId)
+    const rootCategories = allCategories.filter(category => !category.parentId)
 
     const navigations = rootCategories.map(element => {
-        if (element)
-            return createNavigation(element, allCategories);
+        return createNavigation(element, allCategories);
     });
 
     return navigations;
