@@ -1,6 +1,9 @@
 {
   "name": "ts-node-docker",
   "version": "1.0.0",
+  "prisma": {
+    "seed": "ts-node src/categories/prismaCategorySeed.ts"
+  },
   "description": "",
   "main": "app.ts",
   "scripts": {
