@@ -2,18 +2,30 @@ import { CONFIG } from "../config";
 import { retrieveAllCategories, retrieveAllCategoriesByName } from "../categories/category"
 import { prisma } from "../../prisma/prisma";
 
-
+// todo find a way to do this using findUnique
 export const retrieveOneRecommendedProductsOfCategories = async (categoriesIds: number[]) => {
     const result = await prisma.product.findMany({
         where: {
-            id: { in: categoriesIds },
+            productInCategories:
+            {
+                some:
+                {
+                    categoryId: { in: categoriesIds },
+                },
+            },
+        },
+        select: {
+            id: true,
+            name: true,
+            price: true,
+            imageSrc: true
         },
         orderBy: {
             scoreValue: 'desc',
         },
         take: 1,
     })
-    return result;
+    return result[0];
 }
 
 // Motivation: take 3 max scored products of each category.
