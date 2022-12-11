@@ -1,3 +1,4 @@
+import { getProductComments } from "../comments/comment";
 import { prisma } from "../../prisma/prisma";
 
 export const getAllProducts = async () => {
@@ -8,8 +9,20 @@ export const getAllProducts = async () => {
 
 export const getProductById = async (productId: number) => {
     const product = await prisma.product.findUnique({
-        where: { id: productId }
-    })
+        where: { id: productId },
+        include: {
+            productSpecification: {
+                include: {
+                    specification: true
+                }
+            },
+            productDescription: {
+                include: {
+                    description: true
+                }
+            }
+        }
+    });
 
     return product;
 }

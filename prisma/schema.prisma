@@ -27,6 +27,7 @@ model Product {
   scores ProductScore[]
   productDescription ProductDescription[]
   productSpecification ProductSpecification[]
+  productComment ProductComment? 
 }
 
 model Category {
@@ -50,8 +51,9 @@ model ProductScore {
  product       Product     @relation(fields: [productId], references: [id])
  productId     Int
  score Int
- addDate String
- ipAddress String
+ addDate DateTime   @default(now())
+ ipAddress String @db.VarChar(45)
+ productComment ProductComment? 
 }
 
 model ProductSpecification {
@@ -86,4 +88,18 @@ model Description {
  imageSrc     String   @db.VarChar(200)
  description String   @db.VarChar(1000)
  productDescription ProductDescription[]
+}
+
+model ProductComment {
+   id       Int  @id @default(autoincrement())
+   product      Product   @relation(fields: [productId], references: [id])
+   productId Int @unique
+   comment String   @db.VarChar(1000)
+   addDate DateTime   @default(now())
+   username String @db.VarChar(50)
+   avatarImgScr String @db.VarChar(250)
+  productScore      ProductScore   @relation(fields: [scoreId], references: [id])
+  scoreId Int @unique
+  helpfullCommentCount Int
+  unhelpfulCommentCount Int
 }
