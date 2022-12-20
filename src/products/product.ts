@@ -2,6 +2,9 @@ import { getProductComments } from "../comments/comment";
 import { getProductScores, sumProductVotesByScore } from "../scores/score";
 import { prisma } from "../../prisma/prisma";
 import { CONFIG } from "../config";
+import { getSpecificationsByProductId } from "../specifications/specification";
+import { getDescriptionsByProductId } from "../descriptions/description";
+import { Description, ProductComment, ProductScore, Specification } from "@prisma/client";
 
 type productScore = {
     value: number,
@@ -16,23 +19,33 @@ export const getAllProducts = async () => {
 
 export const getProductById = async (productId: number) => {
     const productDb = await prisma.product.findUnique({
-        where: { id: productId },
-        include: {
-            productSpecification: {
-                include: {
-                    specification: true
-                }
-            },
-            productDescription: {
-                include: {
-                    description: true
-                }
-            }
-        }
+        where: { id: productId }
     });
 
     if (productDb) {
-        const productScoresDb = await getProductScores(productId);
+        const commentPageIndex = 1;
+        const productScoresDbLoading = getProductScores(productId);
+        const productCommentsLoading = getProductComments(productDb?.id, commentPageIndex, CONFIG.BASE_PRODUCT_COMMENTS_COUNT);
+
+        const productSpecificationsLoading = getSpecificationsByProductId(productId);
+        const productDescriptionLoading = getDescriptionsByProductId(productId);
+
+        let productScoresDb: ProductScore[] = [];
+        let productCommentsDb: ProductComment[] = [];
+
+        let productSpecificationsDb: Specification[] = [];
+        let productDescriptionDb: Description[] = [];
+
+        await Promise.all([productScoresDbLoading,
+            productCommentsLoading,
+            productSpecificationsLoading,
+            productDescriptionLoading])
+            .then(responses => {
+                productScoresDb = responses[0],
+                productCommentsDb = responses[1],
+                productSpecificationsDb = responses[2],
+                productDescriptionDb = responses[3]
+            });
 
         let productScores: productScore[] = [];
 
@@ -43,10 +56,15 @@ export const getProductById = async (productId: number) => {
                     voteCount: sumProductVotesByScore(productId, index, productScoresDb)
                 });
         }
-        const commentPageIndex = 1;
-        var productComments = await getProductComments(productDb?.id, commentPageIndex, CONFIG.BASE_PRODUCT_COMMENTS_COUNT);
 
-        return { product: productDb, comments: productComments, scores: productScores }
+        return {
+            product: productDb,
+            specifications: productSpecificationsDb,
+            descriptions: productDescriptionDb,
+            comments: productCommentsDb,
+            scores: productScores
+        }
     }
+
     return null;
 }

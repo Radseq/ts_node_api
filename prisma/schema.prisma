@@ -25,8 +25,6 @@ model Product {
   isBestseller Boolean?   
   hasFreeShipping Boolean?
   scores ProductScore[]
-  productDescription ProductDescription[]
-  productSpecification ProductSpecification[]
   productComment ProductComment? 
 }
 
@@ -57,12 +55,10 @@ model ProductScore {
 }
 
 model ProductSpecification {
-  product       Product     @relation(fields: [productId], references: [id])
-  productId     Int
+  id       Int  @id @default(autoincrement())
+  productId     Int?
   specification   Specification @relation(fields: [specificationId], references: [id])
   specificationId Int
-
-  @@id([productId, specificationId])
 }
 
 model Specification {
@@ -74,12 +70,10 @@ model Specification {
 }
 
 model ProductDescription {
-  product       Product     @relation(fields: [productId], references: [id])
-  productId     Int
+  id       Int  @id @default(autoincrement())
+  productId     Int?
   description   Description @relation(fields: [descriptionId], references: [id])
   descriptionId Int
-
-  @@id([productId, descriptionId])
 }
 
 model Description {
