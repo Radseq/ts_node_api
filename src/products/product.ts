@@ -4,7 +4,7 @@ import { prisma } from "../../prisma/prisma";
 import { CONFIG } from "../config";
 import { getSpecificationsByProductId } from "../specifications/specification";
 import { getDescriptionsByProductId } from "../descriptions/description";
-import { ProductScore } from "@prisma/client";
+import { ProductScore, Specification } from "@prisma/client";
 
 export const getAllProducts = async () => {
     const allProducts = await prisma.product.findMany();
@@ -22,6 +22,15 @@ export const getProductKeyValueVotes = (productId: number, productScoresDb: Prod
     })
     // parse array of name and valueCount into keyValues
     const keyValues = Object.assign({}, ...votes.map(score => ({ [score.value]: score.voteCount })));
+
+    return keyValues;
+}
+
+const getSpecificationRecords = (specifications: Specification[], mainType: boolean = false) => {
+    const keyValues = Object.assign(
+        {}, ...specifications.filter(specification => specification.isMain == mainType)
+            .map(s => ({ [s.name]: s.value.split("\n") }))
+    );
 
     return keyValues;
 }
@@ -47,7 +56,10 @@ export const getProductById = async (productId: number) => {
 
         return {
             product: productDb,
-            specifications: productSpecificationsDb,
+            specifications: {
+                main: getSpecificationRecords(productSpecificationsDb, true),
+                other: getSpecificationRecords(productSpecificationsDb)
+            },
             descriptions: productDescriptionDb,
             comments: productCommentsDb,
             scores: getProductKeyValueVotes(productId, productScoresDb)
