@@ -11,11 +11,11 @@ export const getProductScores = async (productId: number) => {
     return allProductScores;
 }
 
-export const sumProductVotesByScore = (productId: number, score: number, productScores: ProductScore[]) => {
+export const sumProductVotesByScore = (productId: number, scoreIndex: number, productScores: ProductScore[]) => {
     let count: number = 0;
     for (let index = 0; index < productScores.length; index++) {
         const productScore = productScores[index];
-        if (productScore.score == score && productScore.productId === productId)
+        if (productScore.score == scoreIndex && productScore.productId === productId)
             ++count;
     }
     return count;

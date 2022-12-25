@@ -4,16 +4,26 @@ import { prisma } from "../../prisma/prisma";
 import { CONFIG } from "../config";
 import { getSpecificationsByProductId } from "../specifications/specification";
 import { getDescriptionsByProductId } from "../descriptions/description";
-
-type productScore = {
-    value: number,
-    voteCount: number
-}
+import { ProductScore } from "@prisma/client";
 
 export const getAllProducts = async () => {
     const allProducts = await prisma.product.findMany();
 
     return allProducts;
+}
+
+export const getProductKeyValueVotes = (productId: number, productScoresDb: ProductScore[]) => {
+    // create array then push objects
+    const votes = Array.from(Array(CONFIG.SCORES_MAX_SIZE).keys()).map(scoreIndex => {
+        return {
+            value: scoreIndex,
+            voteCount: sumProductVotesByScore(productId, scoreIndex, productScoresDb)
+        }
+    })
+    // parse array of name and valueCount into keyValues
+    const keyValues = Object.assign({}, ...votes.map(score => ({ [score.value]: score.voteCount })));
+
+    return keyValues;
 }
 
 export const getProductById = async (productId: number) => {
@@ -34,22 +44,13 @@ export const getProductById = async (productId: number) => {
             productSpecificationsLoading,
             productDescriptionLoading]);
 
-        let productScores: productScore[] = [];
-
-        for (let index = 1; index <= CONFIG.SCORES_MAX_SIZE; index++) {
-            productScores.push(
-                {
-                    value: index,
-                    voteCount: sumProductVotesByScore(productId, index, productScoresDb)
-                });
-        }
 
         return {
             product: productDb,
             specifications: productSpecificationsDb,
             descriptions: productDescriptionDb,
             comments: productCommentsDb,
-            scores: productScores
+            scores: getProductKeyValueVotes(productId, productScoresDb)
         }
     }
 
