@@ -33,19 +33,24 @@ export const getAllBestsellerProducts = async () => {
     const lastSoldProducts = await prisma.product.findMany({
         where: {
             id: {
-                in: [...new Set(soldProductsIds)]
+                in: soldProductsIds
             },
         }
     });
 
-    const prodIdWithSellCount = lastSoldProducts.map(product => [product.id, orderProducts
-        .filter(filterProduct => filterProduct.productId === product.id).length]);
+    let mapProductIdWithSoldCount = new Map<number, number>();
 
-    const productsIds = prodIdWithSellCount.sort((a, b) => b[1] - a[1])
-        .slice(0, CONFIG.MAX_BESTSELLS_PRODUCTS).map(aaa => aaa[0]);
+    for (const product of orderProducts) {
+        mapProductIdWithSoldCount.set(product.id,
+            orderProducts.filter(filterProduct => filterProduct.productId === product.id).length);
+    }
+
+    // todo really dont know what name put instead productKeyValue
+    const productKeyValue = new Map([...mapProductIdWithSoldCount.entries()].sort((a, b) => b[1] - a[1])
+        .slice(0, CONFIG.MAX_BESTSELLS_PRODUCTS));
 
     const result = lastSoldProducts.filter(product => {
-        if (productsIds.includes(product.id))
+        if (productKeyValue.has(product.id))
             return product;
     });
 
