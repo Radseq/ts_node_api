@@ -66,3 +66,9 @@ export const getAllBestsellerProducts = async () => {
 
     return getMostSoldProductsByDate(bestsellerMonthsPriorToToday);
 }
+
+export const getHitsOfWeekProducts = async () => {
+    const hitsOfWeekData = new Date();
+    hitsOfWeekData.setDate(hitsOfWeekData.getDate() - CONFIG.HITS_OF_WEEK_DAYS_PERIOD);
+    return getMostSoldProductsByDate(hitsOfWeekData);
+}

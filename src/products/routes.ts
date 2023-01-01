@@ -1,5 +1,5 @@
 import express, { Request, Response } from "express";
-import { getAllBestsellerProducts, getAllProducts, getProductById } from "./product";
+import { getAllBestsellerProducts, getAllProducts, getHitsOfWeekProducts, getProductById } from "./product";
 
 function createProductRouter() {
     return express.Router()
@@ -10,6 +10,10 @@ function createProductRouter() {
         .get('/bestsellers', async (_, resp: Response) => {
             const bestsellerProducts = await getAllBestsellerProducts();
             resp.status(200).json(bestsellerProducts);
+        })
+        .get('/hitsofweek', async (_, resp: Response) => {
+            const hitsOfWeekProducts = await getHitsOfWeekProducts();
+            resp.status(200).json(hitsOfWeekProducts);
         })
         .get('/:productId', async (req: Request, resp: Response) => {
             const product = await getProductById(Number(req.params.productId));
