@@ -35,9 +35,9 @@ const getMostSoldProductsByDate = async (date: Date) => {
     const productIdSoldCountMap = new Map(orderProducts.map(i => [i.productId, orderProducts.filter(filterProduct => filterProduct.productId === i.productId).length]));
     const getProductsIdsOfSortMap = [...productIdSoldCountMap.entries()].sort((a, b) => b[1] - a[1]).map(keyValue => keyValue[0]);
 
-    const slicedMap = getProductsIdsOfSortMap.slice(0, CONFIG.MAX_BESTSELLS_PRODUCTS);
+    const sliceProductsIds = getProductsIdsOfSortMap.slice(0, CONFIG.MAX_BESTSELLS_PRODUCTS);
 
-    const products = await getProductsByIds(slicedMap as number[]);
+    const products = await getProductsByIds(sliceProductsIds as number[]);
 
     return products;
 }
