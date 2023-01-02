@@ -29,35 +29,17 @@ export const getProductsByIds = async (productIds: number[]) => {
     return product;
 }
 
-const getMapProductIdWithSoldCount = (orderProducts: OrderProduct[]) => {
-    let mapProductIdWithSoldCount = new Map<number, number>();
-
-    for (const product of orderProducts) {
-        mapProductIdWithSoldCount.set(product.id,
-            orderProducts.filter(filterProduct => filterProduct.productId === product.id).length);
-    }
-
-    return mapProductIdWithSoldCount;
-}
-
 const getMostSoldProductsByDate = async (date: Date) => {
     const orderProducts = await getOrderProductsByDate(date);
 
-    // todo really dont know what name put instead productKeyValue
-    const productKeyValue = new Map([...getMapProductIdWithSoldCount(orderProducts).entries()].sort((a, b) => b[1] - a[1])
-        .slice(0, CONFIG.MAX_BESTSELLS_PRODUCTS));
+    const productIdSoldCountMap = new Map(orderProducts.map(i => [i.productId, orderProducts.filter(filterProduct => filterProduct.productId === i.productId).length]));
+    const getProductsIdsOfSortMap = [...productIdSoldCountMap.entries()].sort((a, b) => b[1] - a[1]).map(keyValue => keyValue[0]);
 
-    const soldProductsIds = orderProducts.filter(orderProduct => orderProduct.productId !== null)
-        .map(orderProduct => orderProduct.id);
+    const slicedMap = getProductsIdsOfSortMap.slice(0, CONFIG.MAX_BESTSELLS_PRODUCTS);
 
-    const products = await getProductsByIds(soldProductsIds);
+    const products = await getProductsByIds(slicedMap as number[]);
 
-    const result = products.filter(product => {
-        if (productKeyValue.has(product.id))
-            return product;
-    });
-
-    return result;
+    return products;
 }
 
 export const getAllBestsellerProducts = async () => {
