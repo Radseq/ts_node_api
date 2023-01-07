@@ -35,3 +35,9 @@ _You'll need docker installed on your machine to run this in case you didn't kno
 ### Build and start production build
 
 `make up-prod`
+
+## In Linux 
+### use env file cmd:
+source .env
+### For clear redis cache cmd:
+redis-cli flushall
