@@ -1,11 +1,27 @@
 import express, { Response } from "express";
 import { getNavigationTree } from "../navigations/navigation";
+import { cache } from "../cache";
 
 function createNavigationRouter() {
     return express.Router()
         .get('', async (_, resp: Response) => {
-            const navigations = await getNavigationTree()
-            resp.status(200).json(navigations);
+            try {
+                const result = await cache.get('nav');
+                let dataResult;
+                if (result) {
+                    dataResult = JSON.parse(result);
+                } else {
+                    const navigations = await getNavigationTree();
+                    dataResult = navigations;
+                    await cache.set('nav', JSON.stringify(dataResult));
+                    cache.expire('nav', 10) // ttl 10 seconds
+                }
+
+                resp.send(dataResult);
+            } catch (error) {
+                console.error(error);
+                resp.status(404);
+            }
         })
 }
 
