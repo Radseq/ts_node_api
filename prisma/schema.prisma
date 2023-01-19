@@ -41,3 +41,9 @@ model ProductInCategory {
 
   @@id([productId, categoryId])
 }
+
+model Newsletter {
+    id      Int       @id @default(autoincrement())
+    email   String    @unique @db.VarChar(120)
+    addDate DateTime  @default(now())
+}
