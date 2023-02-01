@@ -1,10 +1,6 @@
-import { CONFIG } from "../config";
 import { prisma } from "../../prisma/prisma";
 
-export const getAdvertising = async () => {
-    const fromMonthsPriorToToday = new Date();
-    fromMonthsPriorToToday.setMonth(fromMonthsPriorToToday.getMonth() - CONFIG.ADV_FROM_MONTHS_PRIOR_TO_TODAY);
-
+export const getAllAdvertisements = async () => {
     const allAdvertising = await prisma.advertisement.findMany({
         select: {
             id: true,
@@ -13,11 +9,8 @@ export const getAdvertising = async () => {
             imageSrc: true
         },
         where: {
-            addDate: {
-                gt: fromMonthsPriorToToday
-            },
             expiredDate: {
-                gt: new Date()
+                gte: new Date()
             }
         }
     });

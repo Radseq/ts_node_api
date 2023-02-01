@@ -12,7 +12,7 @@ app.use(cors());
 app.use('/product/', productRouter);
 app.use('/recommendedProduct', recommendedProductRouter)
 app.use('/navigation', navigationRouter)
-app.use('/advertising', advertisementRoute)
+app.use('/advertisement', advertisementRoute)
 
 app.listen(port, () => {
     const runningMessage = `Server running at http://localhost:${port}`;
