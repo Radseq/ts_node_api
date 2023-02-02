@@ -4,7 +4,7 @@ import { getAllProducts, getProductById } from "./product";
 
 export function createProductRouter() {
     return express.Router()
-        .get('', async (_, resp) => {
+        .get('', async (_, resp: Response) => {
             const products = await getAllProducts()
             resp.status(200).json(products);
         })
