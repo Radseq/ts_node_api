@@ -7,13 +7,13 @@ function createCommentRouter() {
             const productId = Number(req.params.productId);
             const pageIndex = Number(req.params.pageIndex);
             const pageSize = Number(req.params.pageSize);
-            const comemnts = await getProductComments(productId, pageIndex, pageSize);
-            if (!comemnts) {
+            const comments = await getProductComments(productId, pageIndex, pageSize);
+            if (!comments) {
                 return resp.status(404).send({
                     error: `Comemnts for product id ${req.params.productId} not found`,
                 });
             }
-            return resp.status(200).json(comemnts);
+            return resp.status(200).json(comments);
         })
 }
 

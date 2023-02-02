@@ -13,49 +13,41 @@ export const getAllProducts = async () => {
 }
 
 export const getProductKeyValueVotes = (productId: number, productScoresDb: ProductScore[]) => {
-    // create array then push objects
-    const votes = Array.from(Array(CONFIG.SCORES_MAX_SIZE).keys()).map(scoreIndex => {
-        return {
-            value: scoreIndex,
-            voteCount: sumProductVotesByScore(productId, scoreIndex, productScoresDb)
-        }
-    })
-    // parse array of name and valueCount into keyValues
-    const keyValues = Object.assign({}, ...votes.map(score => ({ [score.value]: score.voteCount })));
-
-    return keyValues;
+    const votes: { [key: number]: number } = {};
+    for (let scoreIndex = 0; scoreIndex < CONFIG.SCORES_MAX_SIZE; scoreIndex++) {
+        votes[scoreIndex] = sumProductVotesByScore(productId, scoreIndex, productScoresDb)
+    }
+    return votes;
 }
 
 const getSpecificationRecords = (specifications: Specification[], mainType: boolean = false) => {
-    const keyValues = Object.assign(
-        {}, ...specifications.filter(specification => specification.isMain == mainType)
-            .map(s => ({ [s.name]: s.value.split("\n") }))
-    );
-
-    return keyValues;
+    const records: { [key: string]: string } = {};
+    for (let index = 0; index < specifications.length; index++) {
+        if (mainType === specifications[index].isMain) {
+            records[specifications[index].name] = specifications[index].value;
+        }
+    }
+    return records;
 }
 
 export const getProductById = async (productId: number) => {
-    const productDb = await prisma.product.findUnique({
+    const foundProductById = await prisma.product.findUnique({
         where: { id: productId }
     });
 
-    if (productDb) {
+    if (foundProductById) {
         const commentPageIndex = 1;
-        const productScoresDbLoading = getProductScores(productId);
-        const productCommentsLoading = getProductComments(productDb?.id, commentPageIndex, CONFIG.BASE_PRODUCT_COMMENTS_COUNT);
 
-        const productSpecificationsLoading = getSpecificationsByProductId(productId);
-        const productDescriptionLoading = getDescriptionsByProductId(productId);
-
-        const [productScoresDb, productCommentsDb, productSpecificationsDb, productDescriptionDb] = await Promise.all([productScoresDbLoading,
-            productCommentsLoading,
-            productSpecificationsLoading,
-            productDescriptionLoading]);
-
+        const [productScoresDb, productCommentsDb, productSpecificationsDb, productDescriptionDb]
+            = await Promise.all(
+                [getProductScores(productId),
+                getProductComments(foundProductById.id, commentPageIndex, CONFIG.BASE_PRODUCT_COMMENTS_COUNT),
+                getSpecificationsByProductId(productId),
+                getDescriptionsByProductId(productId)]
+            );
 
         return {
-            product: productDb,
+            product: foundProductById,
             specifications: {
                 main: getSpecificationRecords(productSpecificationsDb, true),
                 other: getSpecificationRecords(productSpecificationsDb)
