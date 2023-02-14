@@ -1,18 +1,23 @@
-import { redisClient } from "./Redis/redis";
-
-const cache = redisClient;
+import { getCache } from "./Redis/redis";
 
 export const getCacheData = async (key: string) => {
-    const cacheData = await cache.get(key);
-    if (cacheData) {
-        return JSON.parse(cacheData);
+    const redis = getCache();
+    if (redis) {
+        const value = await redis.get(key)
+        if (value) {
+            return JSON.parse(value);
+        }
     }
     return null;
 }
 
-export const setCacheData = async (key: string, value: any, ttlInSecunds: number | null = null) => {
-    await cache.set(key, JSON.stringify(value));
-    if (ttlInSecunds) {
-        cache.expire(key, ttlInSecunds)
+export const setCacheData = async (key: string, value: any,
+    ttlInSeconds: number | null = null) => {
+    const redis = getCache();
+    if (redis) {
+        await redis.set(key, JSON.stringify(value));
+        if (ttlInSeconds) {
+            redis.expire(key, ttlInSeconds)
+        }
     }
 }

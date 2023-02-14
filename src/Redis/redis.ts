@@ -1,10 +1,10 @@
 import type { RedisClientType } from 'redis'
 import { createClient } from 'redis'
 
-let redisClient: RedisClientType
+let redisClient: RedisClientType | null
 let isReady: boolean
 
-async function getCache(): Promise<RedisClientType> {
+export const getCache = () => {
     if (!isReady) {
         redisClient = createClient()
         redisClient.on('error', err => console.log(`Redis Error: ${err}`))
@@ -14,17 +14,8 @@ async function getCache(): Promise<RedisClientType> {
             isReady = true
             console.log('Redis ready!')
         })
-        await redisClient.connect()
+        redisClient.connect();
+        return redisClient;
     }
-    return redisClient
-}
-
-getCache().then(connection => {
-    redisClient = connection
-}).catch(err => {
-    console.log({ err }, 'Failed to connect to Redis')
-})
-
-export {
-    redisClient,
+    return null;
 }
