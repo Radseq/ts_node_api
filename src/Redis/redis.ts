@@ -15,7 +15,6 @@ export const getCache = () => {
             console.log('Redis ready!')
         })
         redisClient.connect();
-        return redisClient;
     }
-    return null;
+    return redisClient;
 }
