@@ -2,43 +2,39 @@ import express, { Request, Response } from "express";
 import { z } from "zod";
 import { getProductComments } from "./comment";
 
+const POST_DATA_VERIFIER = z.object({
+    productId: z.coerce.number({
+        invalid_type_error: "productId must be a number",
+    }),
+    pageIndex: z.coerce.number({
+        invalid_type_error: "pageIndex must be a number",
+    }),
+    pageSize: z.coerce.number({
+        invalid_type_error: "pageSize must be a number",
+    }),
+});
+
 function createCommentRouter() {
     return express.Router()
         .get('/:productId/:pageIndex/:pageSize', async (req: Request, resp: Response) => {
-            try {
-                const reqParms = z.object({
-                    productId: z.number(),
-                    pageIndex: z.number(),
-                    pageSize: z.number(),
-                });
+            const validationResult = POST_DATA_VERIFIER.safeParse({
+                productId: req.params.productId,
+                pageIndex: req.params.pageIndex,
+                pageSize: req.params.pageSize
+            });
 
-                const validationResult = reqParms.parse({
-                    productId: req.params.productId,
-                    pageIndex: req.params.pageIndex,
-                    pageSize: req.params.pageSize
-                });
-
-                const comments = await getProductComments(validationResult.productId, validationResult.pageIndex, validationResult.pageSize);
-                if (!comments) {
-                    return resp.status(404).send({
-                        error: `Comemnts for product id ${req.params.productId} not found`,
-                    });
-                }
-                return resp.status(200).json(comments);
-            } catch (error) {
-                if (error instanceof z.ZodError) {
-                    let Errors: { code: string, message: string }[] = []
-                    for (let index = 0; index < error.issues.length; index++) {
-                        Errors.push({
-                            code: error.issues[index].code,
-                            message: error.issues[index].message
-                        });
-                    }
-                    return resp.status(404).send({
-                        error: Errors,
-                    });
-                }
+            if (!validationResult.success) {
+                return resp.status(404).send(validationResult.error);
             }
+
+            const comments = await getProductComments(validationResult.data.productId,
+                validationResult.data.pageIndex, validationResult.data.pageSize);
+            if (!comments) {
+                return resp.status(404).send({
+                    error: `Comemnts for product id ${req.params.productId} not found`,
+                });
+            }
+            return resp.status(200).json(comments);
         })
 }
 
