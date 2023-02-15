@@ -1,7 +1,7 @@
 import { getCache } from "./Redis/redis";
 
 export const getCacheData = async (key: string) => {
-    const redis = getCache();
+    const redis = await getCache();
     if (redis) {
         const value = await redis.get(key)
         if (value) {
@@ -13,7 +13,7 @@ export const getCacheData = async (key: string) => {
 
 export const setCacheData = async (key: string, value: any,
     ttlInSeconds: number | null = null) => {
-    const redis = getCache();
+    const redis = await getCache();
     if (redis) {
         await redis.set(key, JSON.stringify(value));
         if (ttlInSeconds) {
