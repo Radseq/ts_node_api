@@ -1,7 +1,7 @@
 import { prisma } from "../../prisma/prisma";
 
 export const addNewsletterEmail = async (email: string) => {
-    if (await IsEmailExists(email)) return false;
+    if (await isEmailExists(email)) return false;
 
     const add = await prisma.newsletter.create({
         data: {
@@ -13,7 +13,7 @@ export const addNewsletterEmail = async (email: string) => {
     return add.id ?? false;
 }
 
-const IsEmailExists = async (email: string) => {
+const isEmailExists = async (email: string) => {
     const alreadyExistsEmail = await prisma.newsletter.findUnique(
         {
             where: {
