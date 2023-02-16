@@ -39,6 +39,7 @@
     "express": "^4.18.2",
     "express-winston": "^4.2.0",
     "shortid": "^2.2.16",
-    "winston": "^3.8.2"
+    "winston": "^3.8.2",
+    "zod": "^3.20.2"
   }
 }
