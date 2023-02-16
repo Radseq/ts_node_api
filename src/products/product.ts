@@ -35,28 +35,26 @@ export const getProductById = async (productId: number) => {
         where: { id: productId }
     });
 
-    if (foundProductById) {
-        const commentPageIndex = 1;
+    if (!foundProductById) return null;
 
-        const [productScoresDb, productCommentsDb, productSpecificationsDb, productDescriptionDb]
-            = await Promise.all(
-                [getProductScores(productId),
-                getProductComments(foundProductById.id, commentPageIndex, CONFIG.BASE_PRODUCT_COMMENTS_COUNT),
-                getSpecificationsByProductId(productId),
-                getDescriptionsByProductId(productId)]
-            );
+    const commentPageIndex = 1;
 
-        return {
-            product: foundProductById,
-            specifications: {
-                main: getSpecificationRecords(productSpecificationsDb, true),
-                other: getSpecificationRecords(productSpecificationsDb)
-            },
-            descriptions: productDescriptionDb,
-            comments: productCommentsDb,
-            scores: getProductKeyValueVotes(productId, productScoresDb)
-        }
+    const [productScoresDb, productCommentsDb, productSpecificationsDb, productDescriptionDb]
+        = await Promise.all(
+            [getProductScores(productId),
+            getProductComments(foundProductById.id, commentPageIndex, CONFIG.BASE_PRODUCT_COMMENTS_COUNT),
+            getSpecificationsByProductId(productId),
+            getDescriptionsByProductId(productId)]
+        );
+
+    return {
+        product: foundProductById,
+        specifications: {
+            main: getSpecificationRecords(productSpecificationsDb, true),
+            other: getSpecificationRecords(productSpecificationsDb)
+        },
+        descriptions: productDescriptionDb,
+        comments: productCommentsDb,
+        scores: getProductKeyValueVotes(productId, productScoresDb)
     }
-
-    return null;
 }

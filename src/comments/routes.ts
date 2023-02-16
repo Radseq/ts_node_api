@@ -16,19 +16,16 @@ const POST_DATA_VERIFIER = z.object({
 
 function createCommentRouter() {
     return express.Router()
-        .get('/:productId/:pageIndex/:pageSize', async (req: Request, resp: Response) => {
-            const validationResult = POST_DATA_VERIFIER.safeParse({
-                productId: req.params.productId,
-                pageIndex: req.params.pageIndex,
-                pageSize: req.params.pageSize
-            });
+        .get('/commentPage', async (req: Request, resp: Response) => {
+            const result = POST_DATA_VERIFIER.safeParse(req.body)
 
-            if (!validationResult.success) {
-                return resp.status(404).send(validationResult.error);
+            if (!result.success) {
+                return resp.status(404).send(result.error);
             }
 
-            const comments = await getProductComments(validationResult.data.productId,
-                validationResult.data.pageIndex, validationResult.data.pageSize);
+            const { productId, pageSize, pageIndex } = result.data;
+
+            const comments = await getProductComments(productId, pageIndex, pageSize);
             if (!comments) {
                 return resp.status(404).send({
                     error: `Comemnts for product id ${req.params.productId} not found`,
