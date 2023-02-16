@@ -65,3 +65,21 @@ export const getAllBestsellerProducts = async () => {
 
     return getMostSoldProductsByDate(bestsellerMonthsPriorToToday);
 };
+
+export const getProductsByName = async (productName: string) => {
+    const allSearchProductsByName = await prisma.product.findMany({
+        select: {
+            id: true,
+            name: true,
+            price: true
+        },
+        where: {
+            name: {
+                contains: productName
+            }
+        },
+        take: CONFIG.MAX_SEARCH_RESULT
+    });
+
+    return allSearchProductsByName;
+}

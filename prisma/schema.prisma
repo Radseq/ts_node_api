@@ -60,4 +60,13 @@ model OrderProduct {
   orderId     Int
   quantity    Int
   productId   Int?
+
+model Advertisement {
+  id          Int      @id @default(autoincrement())
+  addDate     DateTime @default(now())
+  expiredDate DateTime @default(now())
+  title       String   @db.VarChar(120)
+  imageSrc    String   @db.VarChar(200)
+  description String   @db.VarChar(1000)
+  url         String   @db.VarChar(300)
 }
