@@ -3,6 +3,7 @@ import cors from 'cors';
 import { productRouter } from "./products";
 import { recommendedProductRouter } from './recommendedProducts/routes';
 import { navigationRouter } from './navigations/routes';
+import { commentRouter } from './comments/routes';
 import { newsletterRouter } from './newsletter/routes';
 import { advertisementRoute } from './advertising/routes';
 
@@ -13,6 +14,7 @@ app.use(cors());
 app.use('/product/', productRouter);
 app.use('/recommendedProduct', recommendedProductRouter)
 app.use('/navigation', navigationRouter)
+app.use('/comment', commentRouter)
 app.use('/newsletter/', newsletterRouter)
 app.use('/advertisement', advertisementRoute)
 
