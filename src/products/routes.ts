@@ -1,12 +1,16 @@
 import express, { Request, Response } from "express";
-import { getAllProducts, getProductById } from "./product";
+import { getAllProducts, getProductById, getProductsByName } from "./product";
 
-export function createProductRouter() {
+function createProductRouter() {
 	return express
 		.Router()
 		.get("", async (_, resp: Response) => {
 			const products = await getAllProducts();
 			resp.status(200).json(products);
+		})
+		.get("/search/:productName", async (req: Request, resp: Response) => {
+			const allProducts = await getProductsByName(req.params.productName);
+			resp.status(200).json(allProducts);
 		})
 		.get("/:productId", async (req: Request, resp: Response) => {
 			const productID = parseInt(req.params.productId);

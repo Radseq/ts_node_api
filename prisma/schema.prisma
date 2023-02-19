@@ -96,4 +96,19 @@ model ProductComment {
   scoreId Int @unique
   helpfullCommentCount Int
   unhelpfulCommentCount Int
+
+model Newsletter {
+    id      Int       @id @default(autoincrement())
+    email   String    @unique @db.VarChar(120)
+    addDate DateTime  @default(now())
+}
+
+model Advertisement {
+  id          Int      @id @default(autoincrement())
+  addDate     DateTime @default(now())
+  expiredDate DateTime @default(now())
+  title       String   @db.VarChar(120)
+  imageSrc    String   @db.VarChar(200)
+  description String   @db.VarChar(1000)
+  url         String   @db.VarChar(300)
 }

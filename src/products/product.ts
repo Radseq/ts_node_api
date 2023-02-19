@@ -79,4 +79,22 @@ export const getProductById = async (productId: number) => {
 		comments: productCommentsDb,
 		scores: getProductKeyValueVotes(productId, productScoresDb),
 	};
-};
+}
+
+export const getProductsByName = async (productName: string) => {
+    const allSearchProductsByName = await prisma.product.findMany({
+        select: {
+            id: true,
+            name: true,
+            price: true
+        },
+        where: {
+            name: {
+                contains: productName
+            }
+        },
+        take: CONFIG.MAX_SEARCH_RESULT
+    });
+
+    return allSearchProductsByName;
+}
