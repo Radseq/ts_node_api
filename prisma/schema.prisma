@@ -96,6 +96,7 @@ model ProductComment {
   scoreId Int @unique
   helpfullCommentCount Int
   unhelpfulCommentCount Int
+}
 
 model Newsletter {
     id      Int       @id @default(autoincrement())
