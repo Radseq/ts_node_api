@@ -1,5 +1,10 @@
 import express, { Request, Response } from "express";
-import { getAllProducts, getProductById, getProductsByName } from "./product";
+import {
+	getAllBestsellerProducts,
+	getAllProducts,
+	getProductById,
+	getProductsByName,
+} from "./product";
 
 function createProductRouter() {
 	return express
@@ -7,6 +12,10 @@ function createProductRouter() {
 		.get("", async (_, resp: Response) => {
 			const products = await getAllProducts();
 			resp.status(200).json(products);
+		})
+		.get("/bestsellers", async (_, resp: Response) => {
+			const bestsellerProducts = await getAllBestsellerProducts();
+			resp.status(200).json(bestsellerProducts);
 		})
 		.get("/search/:productName", async (req: Request, resp: Response) => {
 			const allProducts = await getProductsByName(req.params.productName);

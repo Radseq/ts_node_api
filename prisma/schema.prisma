@@ -44,6 +44,26 @@ model ProductInCategory {
   @@id([productId, categoryId])
 }
 
+model Order {
+  id            Int         @id @default(autoincrement())
+  orderProducts OrderProduct[]
+  addDate       DateTime    @default(now())
+}
+
+model OrderProduct {
+  id          Int         @id @default(autoincrement())
+  addDate     DateTime    @default(now())
+  name        String      @db.VarChar(120)
+  imageSrc    String      @db.VarChar(200)
+  netPrice    Int
+  grossPrice  Int
+  vat         Int
+  order       Order       @relation(fields: [orderId], references: [id])
+  orderId     Int
+  quantity    Int
+  productId   Int?
+}
+
 model ProductScore {
  id       Int  @id @default(autoincrement())
  product       Product     @relation(fields: [productId], references: [id])
