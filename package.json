@@ -27,18 +27,20 @@
     "eslint-plugin-n": "^15.5.1",
     "eslint-plugin-promise": "^6.1.1",
     "nodemon": "^2.0.16",
-    "prisma": "^4.6.1",
+    "prisma": "^4.8.0",
     "source-map-support": "^0.5.21",
     "ts-node": "^10.8.0",
     "typescript": "^4.9.3"
   },
   "dependencies": {
-    "@prisma/client": "^4.6.1",
+    "@prisma/client": "^4.8.0",
     "cors": "^2.8.5",
     "debug": "^4.3.4",
     "express": "^4.18.2",
     "express-winston": "^4.2.0",
+    "redis": "^4.5.1",
     "shortid": "^2.2.16",
-    "winston": "^3.8.2"
+    "winston": "^3.8.2",
+    "zod": "^3.20.2"
   }
 }

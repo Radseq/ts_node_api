@@ -1,11 +1,24 @@
 import express, { Response } from "express";
 import { getNavigationTree } from "../navigations/navigation";
+import { getCacheData, setCacheData } from "../cache";
 
 function createNavigationRouter() {
     return express.Router()
         .get('', async (_, resp: Response) => {
-            const navigations = await getNavigationTree()
-            resp.status(200).json(navigations);
+            try {
+                let dataResult = await getCacheData('nav');
+                if (dataResult) {
+                    dataResult = JSON.parse(dataResult);
+                } else {
+                    dataResult = await getNavigationTree();
+                    await setCacheData('nav', JSON.stringify(dataResult));
+                }
+
+                resp.send(dataResult);
+            } catch (error) {
+                console.error(error);
+                resp.status(404);
+            }
         })
 }
 
