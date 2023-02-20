@@ -23,7 +23,9 @@ model Product {
   productInCategories ProductInCategory[]
   installmentPrice Int?
   isBestseller Boolean?   
-  hasFreeShipping Boolean?  
+  hasFreeShipping Boolean?
+  scores ProductScore[]
+  productComment ProductComment? 
 }
 
 model Category {
@@ -60,6 +62,67 @@ model OrderProduct {
   orderId     Int
   quantity    Int
   productId   Int?
+}
+
+model ProductScore {
+ id       Int  @id @default(autoincrement())
+ product       Product     @relation(fields: [productId], references: [id])
+ productId     Int
+ score Int
+ addDate DateTime   @default(now())
+ ipAddress String @db.VarChar(45)
+ productComment ProductComment? 
+}
+
+model ProductSpecification {
+  id       Int  @id @default(autoincrement())
+  productId     Int?
+  specification   Specification @relation(fields: [specificationId], references: [id])
+  specificationId Int
+}
+
+model Specification {
+ id       Int  @id @default(autoincrement())
+ name String @db.VarChar(50)
+ value String @db.VarChar(100)
+ isMain Boolean
+ productSpecification ProductSpecification[]
+}
+
+model ProductDescription {
+  id       Int  @id @default(autoincrement())
+  productId     Int?
+  description   Description @relation(fields: [descriptionId], references: [id])
+  descriptionId Int
+}
+
+model Description {
+ id       Int  @id @default(autoincrement())
+ name String @db.VarChar(50)
+ imageSrc     String   @db.VarChar(200)
+ description String   @db.VarChar(1000)
+ productDescription ProductDescription[]
+}
+
+model ProductComment {
+   id       Int  @id @default(autoincrement())
+   product      Product   @relation(fields: [productId], references: [id])
+   productId Int @unique
+   comment String   @db.VarChar(1000)
+   addDate DateTime   @default(now())
+   username String @db.VarChar(50)
+   avatarImgScr String @db.VarChar(250)
+  productScore      ProductScore   @relation(fields: [scoreId], references: [id])
+  scoreId Int @unique
+  helpfullCommentCount Int
+  unhelpfulCommentCount Int
+}
+
+model Newsletter {
+    id      Int       @id @default(autoincrement())
+    email   String    @unique @db.VarChar(120)
+    addDate DateTime  @default(now())
+}
 
 model Advertisement {
   id          Int      @id @default(autoincrement())
