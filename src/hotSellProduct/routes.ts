@@ -9,7 +9,12 @@ function createHotSellProductRouter() {
 			dataResult = JSON.parse(dataResult);
 		} else {
 			dataResult = await getHotSellProduct();
-			await setCacheData("hotsellProduct", JSON.stringify(dataResult));
+			if (dataResult) {
+				await setCacheData(
+					"hotsellProduct",
+					JSON.stringify(dataResult)
+				);
+			}
 		}
 
 		if (!dataResult) {
@@ -17,6 +22,7 @@ function createHotSellProductRouter() {
 				error: `No hotSell product found`,
 			});
 		}
+
 		return resp.status(200).send(dataResult);
 	});
 }

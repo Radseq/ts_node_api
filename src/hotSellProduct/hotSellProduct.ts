@@ -1,4 +1,4 @@
-import { getOrderProductByDateRange } from "orderProducts/orderProducts";
+import { getOrderProductByDateRange } from "../orderProducts/orderProducts";
 import { prisma } from "../../prisma/prisma";
 
 const getProductSoldQuantity = async (
@@ -12,6 +12,8 @@ const getProductSoldQuantity = async (
 		productId
 	);
 
+	if (ordersProduct.length === 0) return 0;
+
 	const quantityArray = ordersProduct.map(
 		(ordersProduct) => ordersProduct.quantity
 	);
@@ -24,17 +26,44 @@ const getProductSoldQuantity = async (
 };
 
 export const getHotSellProduct = async () => {
+	const todayTimeValue = new Date();
+	const today = new Date(todayTimeValue);
+
+	const tomorrow = new Date(today);
+	tomorrow.setDate(tomorrow.getDate() + 1);
+
+	const yesterday = new Date(today);
+	yesterday.setDate(today.getDate() - 1);
+
+	// get hotsell product which started today after 10 am, and expired tomorrow at 10 am
+	// or get hotsell product which started yesterday at 10 am, and expired today to 10 am
+
 	const hotSellProduct = await prisma.hotSellProduct.findFirst({
 		where: {
-			startDate: {
-				gt: new Date(),
-			},
-			maxQuantity: {
-				gt: 0,
-			},
-			expiredDate: {
-				lt: new Date(),
-			},
+			OR: [
+				{
+					startDate: {
+						lte: today,
+					},
+					maxQuantity: {
+						gt: 0,
+					},
+					expiredDate: {
+						gte: tomorrow,
+					},
+				},
+				{
+					startDate: {
+						lte: yesterday,
+					},
+					maxQuantity: {
+						gt: 0,
+					},
+					expiredDate: {
+						gte: today,
+					},
+				},
+			],
 		},
 		include: {
 			product: true,

@@ -6,7 +6,7 @@ import { navigationRouter } from "./navigations/routes";
 import { commentRouter } from "./comments/routes";
 import { newsletterRouter } from "./newsletter/routes";
 import { advertisementRoute } from "./advertising/routes";
-import { hotSellProductRouter } from "hotSellProduct/routes";
+import { hotSellProductRouter } from "./hotSellProduct/routes";
 
 const app = express();
 const port = process.env.PORT || 4000;
