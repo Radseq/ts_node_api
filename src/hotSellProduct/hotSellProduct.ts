@@ -26,11 +26,14 @@ const getProductSoldQuantity = async (
 export const getHotSellProduct = async () => {
 	const hotSellProduct = await prisma.hotSellProduct.findFirst({
 		where: {
-			expiredDate: {
+			startDate: {
 				gt: new Date(),
 			},
 			maxQuantity: {
 				gt: 0,
+			},
+			expiredDate: {
+				lt: new Date(),
 			},
 		},
 		include: {
