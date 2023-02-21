@@ -2,6 +2,7 @@ import express, { Request, Response } from "express";
 import {
 	getAllBestsellerProducts,
 	getAllProducts,
+	getHitsOfWeekProducts,
 	getProductById,
 	getProductsByName,
 } from "./product";
@@ -16,6 +17,10 @@ function createProductRouter() {
 		.get("/bestsellers", async (_, resp: Response) => {
 			const bestsellerProducts = await getAllBestsellerProducts();
 			resp.status(200).json(bestsellerProducts);
+		})
+		.get("/hitsofweek", async (_, resp: Response) => {
+			const hitsOfWeekProducts = await getHitsOfWeekProducts();
+			resp.status(200).json(hitsOfWeekProducts);
 		})
 		.get("/search/:productName", async (req: Request, resp: Response) => {
 			const allProducts = await getProductsByName(req.params.productName);
