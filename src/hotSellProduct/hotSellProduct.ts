@@ -24,12 +24,10 @@ const getProductSoldQuantity = async (
 };
 
 export const getHotSellProduct = async () => {
-	const hotSellExpiriedDate = new Date(new Date().setHours(23, 59, 59));
-
 	const hotSellProduct = await prisma.hotSellProduct.findFirst({
 		where: {
 			expiredDate: {
-				gt: hotSellExpiriedDate,
+				gt: new Date(),
 			},
 			maxQuantity: {
 				gt: 0,
@@ -40,7 +38,7 @@ export const getHotSellProduct = async () => {
 		},
 	});
 
-	if (!hotSellProduct || hotSellProduct.product.quantity <= 0) {
+	if (!hotSellProduct || hotSellProduct.product.quantity < 1) {
 		return null;
 	}
 
@@ -56,7 +54,7 @@ export const getHotSellProduct = async () => {
 		imageSrc: hotSellProduct.product.imageSrc,
 		price: hotSellProduct.product.price,
 		priceDiscount: hotSellProduct.product.discountPrice,
-		endDateTime: hotSellExpiriedDate,
+		endDateTime: hotSellProduct.expiredDate,
 		orderQuantity,
 		maxQuantity: hotSellProduct.maxQuantity,
 	};
