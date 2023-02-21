@@ -1,4 +1,27 @@
+import { getOrderProductByDateRange } from "orderProducts/orderProducts";
 import { prisma } from "../../prisma/prisma";
+
+const getProductSoldQuantity = async (
+	dateFrom: Date,
+	dateTo: Date,
+	productId: number
+) => {
+	const ordersProduct = await getOrderProductByDateRange(
+		dateFrom,
+		dateTo,
+		productId
+	);
+
+	const quantityArray = ordersProduct.map(
+		(ordersProduct) => ordersProduct.quantity
+	);
+
+	const sumQuantity = quantityArray.reduce(
+		(accumulator, currentValue) => accumulator + currentValue
+	);
+
+	return sumQuantity;
+};
 
 export const getHotSellProduct = async () => {
 	const hotSellExpiriedDate = new Date(new Date().setHours(23, 59, 59));
@@ -21,6 +44,12 @@ export const getHotSellProduct = async () => {
 		return null;
 	}
 
+	const orderQuantity = await getProductSoldQuantity(
+		hotSellProduct.addDate,
+		hotSellProduct.expiredDate,
+		hotSellProduct.productId
+	);
+
 	return {
 		id: hotSellProduct.productId,
 		name: hotSellProduct.product.name,
@@ -28,7 +57,7 @@ export const getHotSellProduct = async () => {
 		price: hotSellProduct.product.price,
 		priceDiscount: hotSellProduct.product.discountPrice,
 		endDateTime: hotSellExpiriedDate,
-		orderQuantity: 0,
+		orderQuantity,
 		maxQuantity: hotSellProduct.maxQuantity,
 	};
 };
