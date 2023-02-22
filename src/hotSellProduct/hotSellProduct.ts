@@ -1,5 +1,6 @@
 import { getOrderProductByDateRange } from "../orderProducts/orderProducts";
 import { prisma } from "../../prisma/prisma";
+import { CONFIG } from "../config";
 
 const getProductSoldQuantity = async (
 	dateFrom: Date,
@@ -26,47 +27,44 @@ const getProductSoldQuantity = async (
 };
 
 export const getHotSellProduct = async () => {
-	const todayTimeValue = new Date();
-	const today = new Date(todayTimeValue);
+	const yesterdayBeginOfDay = new Date();
+	yesterdayBeginOfDay.setDate(new Date().getDate() - 1);
+	yesterdayBeginOfDay.setHours(1, 0, 0, 0);
 
-	const tomorrow = new Date(today);
-	tomorrow.setDate(tomorrow.getDate() + 1);
-
-	const yesterday = new Date(today);
-	yesterday.setDate(today.getDate() - 1);
-
-	// get hotsell product which started today after 10 am, and expired tomorrow at 10 am
-	// or get hotsell product which started yesterday at 10 am, and expired today to 10 am
+	const dateLimitUntilNextHotSale = new Date();
+	dateLimitUntilNextHotSale.setDate(
+		dateLimitUntilNextHotSale.getDate() + CONFIG.DAYS_OF_SEARCH_NEXT_HOTSELL
+	);
 
 	const hotSellProduct = await prisma.hotSellProduct.findFirst({
 		where: {
-			OR: [
-				{
-					startDate: {
-						lte: today,
-					},
-					maxQuantity: {
-						gt: 0,
-					},
-					expiredDate: {
-						gte: tomorrow,
-					},
-				},
-				{
-					startDate: {
-						lte: yesterday,
-					},
-					maxQuantity: {
-						gt: 0,
-					},
-					expiredDate: {
-						gte: today,
-					},
-				},
-			],
+			maxQuantity: {
+				gt: 0,
+			},
+			startDate: {
+				gte: yesterdayBeginOfDay,
+			},
+			expiredDate: {
+				gte: new Date(),
+			},
 		},
 		include: {
 			product: true,
+		},
+	});
+
+	const nextHotSellProduct = await prisma.hotSellProduct.findFirst({
+		where: {
+			maxQuantity: {
+				gt: 0,
+			},
+			startDate: {
+				gte: new Date(),
+				lte: dateLimitUntilNextHotSale,
+			},
+		},
+		select: {
+			startDate: true,
 		},
 	});
 
@@ -89,5 +87,6 @@ export const getHotSellProduct = async () => {
 		endDateTime: hotSellProduct.expiredDate,
 		orderQuantity,
 		maxQuantity: hotSellProduct.maxQuantity,
+		nextHotSellProductDate: nextHotSellProduct?.startDate,
 	};
 };
